@@ -1,16 +1,16 @@
+using AngleSharp;
+using AngleSharp.Dom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AngleSharp;
-using AngleSharp.Dom;
 
 namespace KomicDownloader.Services
 {
     public class ParseService : IParserService
     {
-        public IDocument DocumentCached { get; private set; }
+        private IDictionary<string, IDocument> caches = new Dictionary<string, IDocument>();
         private readonly IBrowsingContext browsingContext;
 
         public ParseService(IBrowsingContext browsingContext)
@@ -34,10 +34,28 @@ namespace KomicDownloader.Services
 
         private async Task<IDocument> BrowseAsync(string url, CancellationToken cancellationToken)
         {
-            if (DocumentCached == null)
-                DocumentCached = await browsingContext.OpenAsync(url, cancellationToken);
+            IDocument document;
+            if (caches.ContainsKey(url))
+            {
+                document = caches[url];
+            }
+            else
+            {
+                document = await browsingContext.OpenAsync(url, cancellationToken);
 
-            return DocumentCached;
+                // TODO: remove idle documents
+                if (caches.Count > 100)
+                {
+                    Console.WriteLine("Cache reaches maximum limit, resetting...");
+                    caches = new Dictionary<string, IDocument>();
+                }
+                else
+                {
+                    caches.Add(url, document);
+                }
+            }
+
+            return document;
         }
     }
 }

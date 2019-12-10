@@ -1,11 +1,9 @@
+using AngleSharp;
+using KomicDownloader.Extensions;
+using KomicDownloader.Services;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
-using KomicDownloader.Services;
-using KomicDownloader.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.FileExtensions;
-using Microsoft.Extensions.Configuration.Json;
-using AngleSharp;
 
 namespace KomicDownloader
 {
@@ -20,9 +18,13 @@ namespace KomicDownloader
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
 
-            var chapterSelector = ".comic-description > a";// config.GetValue<string>("ChapterSelector");
-            var nameSelector = ".comic-info .info > h1.name";// config.GetValue<string>("NameSelector");
-            var imageSelector = ".chapter-content p > img";// config.GetValue<string>("ImageSelector");
+            //var chapterSelector = ".comic-description > a";// config.GetValue<string>("ChapterSelector");
+            //var nameSelector = ".comic-info .info > h1.name";// config.GetValue<string>("NameSelector");
+            //var imageSelector = ".chapter-content p > img";// config.GetValue<string>("ImageSelector");
+
+            var chapterSelector = config.GetSection("ChapterSelector").Value;
+            var nameSelector = config.GetSection("NameSelector").Value;
+            var imageSelector = config.GetSection("ImageSelector").Value;
 
             var dir = AppDomain.CurrentDomain.BaseDirectory;
 

@@ -1,10 +1,10 @@
+using KomicDownloader.Extensions;
+using KomicDownloader.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using KomicDownloader.Extensions;
-using KomicDownloader.Models;
 
 namespace KomicDownloader.Services
 {
@@ -56,31 +56,43 @@ namespace KomicDownloader.Services
 
             Console.WriteLine($"{chapters.Count} chapter(s) found. Starting download...");
 
-            var chapterIndex = 0;
             var chapterName = string.Empty;
+            var chapterPath = string.Empty;
 
             foreach (var chapter in chapters)
             {
                 var images = await parserService.ParseAsync(chapter.Url, imageSelector, x => x.GetAttribute("src"), default);
-                chapterName = chapter.Name.ToFriendlyUrl(500);
 
-                storePath = CreateDirectoryIfNotExist(storePath, chapterName);
+                chapterName = chapter.Name.ToFriendlyUrl(500);
+                chapterPath = CreateDirectoryIfNotExist(storePath, chapterName);
 
                 Console.WriteLine($"Downloading chapter {chapter.Name}...{images.Count} image(s) found!");
 
                 var index = 0;
-                chapterIndex++;
 
                 foreach (var image in images)
                 {
-                    // save image to {Comic}/{Chap-1}/{comic}-{chap}-1-1.png
-                    var filename = $"{comicName}-{chapterName}-{chapterIndex}-{index++}.png";
-                    var fullpath = Path.Combine(storePath, filename);
+                    if (IsIgnorable(image))
+                        continue;
 
-                    await storageService.StoreAsync(image, filename, fullpath);
-                    Console.WriteLine($"{fullpath} has been saved successful");
+                    // save image to {Comic}/{Chap-1}/{comic}-{chap}-{index}.png
+                    var filename = $"{comicName}-{chapterName}-{index++}.png";
+
+                    await storageService.StoreAsync(image, filename, chapterPath);
+
+                    await Task.Delay(500);
                 }
+
+                await Task.Delay(1000);
             }
+        }
+
+        private static bool IsIgnorable(string filename)
+        {
+            var ignore = new[] { "gif" };
+            var extension = filename.Split('.').Last();
+
+            return ignore.Contains(extension);
         }
     }
 }
