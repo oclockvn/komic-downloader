@@ -1,0 +1,18 @@
+{
+  "Comic": {
+    "Sites": [
+      {
+        "Host": "",
+        "NameSelector": "",
+        "ChapterSelector": "",
+        "ImageSelector": ""
+      },
+      {
+        "Host": "https://mangazuki.me",
+        "NameSelector": ".post-title > h1",
+        "ChapterSelector": ".c-page__content .page-content-listing .wp-manga-chapter > a",
+        "ImageSelector": ".read-container img"
+      }
+    ]
+  }
+}

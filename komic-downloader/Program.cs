@@ -1,9 +1,10 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using AngleSharp;
 using KomicDownloader.Extensions;
 using KomicDownloader.Services;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Threading.Tasks;
 
 namespace KomicDownloader
 {
@@ -14,13 +15,13 @@ namespace KomicDownloader
             Console.WriteLine("Comic downloader v1.0 credit to oclockvn");
             var url = string.Empty;
 
+            var comicConfig = new ComicConfig();
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile("sites.json", true, true)
                 .Build();
 
-            //var chapterSelector = ".comic-description > a";// config.GetValue<string>("ChapterSelector");
-            //var nameSelector = ".comic-info .info > h1.name";// config.GetValue<string>("NameSelector");
-            //var imageSelector = ".chapter-content p > img";// config.GetValue<string>("ImageSelector");
+            config.GetSection("Comic").Bind(comicConfig);
 
             var chapterSelector = config.GetSection("ChapterSelector").Value;
             var nameSelector = config.GetSection("NameSelector").Value;
@@ -39,7 +40,9 @@ namespace KomicDownloader
 
                 if (url.IsGoodUrl())
                 {
-                    await comicService.DownloadAsync(url, nameSelector, chapterSelector, imageSelector, dir);
+                    var host = url.GetAbsoluteHost();
+                    var siteConfig = comicConfig.Sites.First(x => x.Host == host);
+                    await comicService.DownloadAsync(url, siteConfig.NameSelector, siteConfig.ChapterSelector, siteConfig.ImageSelector, dir);
 
                     Console.Write("Continue (y/n): ");
                     var cont = Console.ReadLine();

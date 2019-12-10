@@ -80,10 +80,10 @@ namespace KomicDownloader.Services
 
                     await storageService.StoreAsync(image, filename, chapterPath);
 
-                    await Task.Delay(500);
+                    await Task.Delay(100);
                 }
 
-                await Task.Delay(1000);
+                await Task.Delay(500);
             }
         }
 
