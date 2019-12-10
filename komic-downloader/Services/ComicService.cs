@@ -33,9 +33,6 @@ namespace KomicDownloader.Services
 
         public async Task DownloadAsync(string comicUrl, string nameSelector, string chapterSelector, string imageSelector, string storeDirectory)
         {
-            await Task.Delay(1000);
-            return;
-
             var host = comicUrl.GetAbsoluteHost();
             var names = await parserService.ParseAsync(comicUrl, nameSelector, x => x.GetTitleOrContent());
             var comicName = names.First().ToFriendlyUrl(500);

@@ -2,9 +2,10 @@ using System;
 using System.Threading.Tasks;
 using KomicDownloader.Services;
 using KomicDownloader.Extensions;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Configuration.FileExtensions;
-//using Microsoft.Extensions.Configuration.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.FileExtensions;
+using Microsoft.Extensions.Configuration.Json;
+using AngleSharp;
 
 namespace KomicDownloader
 {
@@ -15,17 +16,19 @@ namespace KomicDownloader
             Console.WriteLine("Comic downloader v1.0 credit to oclockvn");
             var url = string.Empty;
 
-            //var config = new ConfigurationBuilder()
-            //    .AddJsonFile("appsettings.json", true, true)
-            //    .Build();
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", true, true)
+                .Build();
 
-            var chapterSelector = "";// config.GetValue<string>("ChapterSelector");
-            var nameSelector = "";// config.GetValue<string>("NameSelector");
-            var imageSelector = "";// config.GetValue<string>("ImageSelector");
+            var chapterSelector = ".comic-description > a";// config.GetValue<string>("ChapterSelector");
+            var nameSelector = ".comic-info .info > h1.name";// config.GetValue<string>("NameSelector");
+            var imageSelector = ".chapter-content p > img";// config.GetValue<string>("ImageSelector");
 
             var dir = AppDomain.CurrentDomain.BaseDirectory;
 
-            var comicService = new ComicService(new ParseService(null), new StorageService());
+            var browserConfig = AngleSharp.Configuration.Default.WithDefaultLoader();
+            var browserContext = AngleSharp.BrowsingContext.New(browserConfig);
+            var comicService = new ComicService(new ParseService(browserContext), new StorageService());
 
             do
             {
